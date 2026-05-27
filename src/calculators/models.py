@@ -72,8 +72,6 @@ def generalized_lanchester_step(
 def kolmogorov_hit_prob(alpha: float, hits: int) -> float:
     """
     P(A|x) = 1 - e^{-αx}
-    Примечание: в доке указан знак +, что даёт P>1 при x>0. 
-    Исправлено на классический закон поражения с отрицательной экспонентой.
     """
     return 1.0 - math.exp(-alpha * hits)
 
