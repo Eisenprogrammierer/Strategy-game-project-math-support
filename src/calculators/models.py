@@ -71,7 +71,7 @@ def generalized_lanchester_step(
 
 def kolmogorov_hit_prob(alpha: float, hits: int) -> float:
     """
-    P(A|x) = 1 - e^{-αx}
+    P(A|x) = 1 - e^{-\alpha x}
     """
     return 1.0 - math.exp(-alpha * hits)
 
