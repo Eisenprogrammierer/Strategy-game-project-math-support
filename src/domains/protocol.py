@@ -27,7 +27,15 @@ class Protocol:
 
     def compute_signal(self, sender: Entity, direction: str = "down") -> Signal:
         """Вычисляет преобразованный сигнал без применения к получателю."""
-        rules = self.rules_down if direction == "down" else self.rules_up
+        match direction:
+            case "up":
+                rules.get("transfer_up")
+            case "down":
+                rules.get("transfer_down")
+            case "aside":
+                rules.get("transfer_aside")
+            case _:
+                raise ValueError
         signal: Signal = {}
         for rule in rules:
             src = rule.get("source_segment")
@@ -43,7 +51,6 @@ class Protocol:
                 continue
         return signal
 
-    # --- Интерфейс (для прямой передачи вне тактового цикла) ---
     def transfer(self, sender: Entity, receiver: Entity, direction: str = "down") -> None:
         signal = self.compute_signal(sender, direction)
         if signal:
@@ -54,3 +61,6 @@ class Protocol:
 
     def transfer_up(self, child: Entity, parent: Entity) -> None:
         self.transfer(child, parent, "up")
+
+    def transfer_aside(self, sender: Entity, receiver: Entity):
+        self.transfer(sender, receiver, "aside")
