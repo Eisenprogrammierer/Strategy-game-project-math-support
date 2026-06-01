@@ -2,99 +2,44 @@ import math
 from typing import Callable, List, Tuple, Dict, Optional
 
 # ============================================================================
-# БЛОК 1: Вероятности победы и параметры превосходства
+# Базовые модели боевых действий
 # ============================================================================
 
-def calc_combat_superiority(
-    morale_x: float, morale_y: float,
-    tech_s_x: float, tech_s_y: float,
-    tech_v_x: float, tech_v_y: float,
-    tech_p_x: float, tech_p_y: float,
-    tech_m_x: float, tech_m_y: float
-) -> float:
-    """
-    \beta = \var_phi * \rho
-    \var_phi - моральное превосходство, \rho - технологическое
-    (среднее геометрическое произвольного числа осей, пока что 4)
-    """
-    phi = morale_x / (morale_y + 1e-9)
-    rho = (
-        (tech_s_x / (tech_s_y + 1e-9)) *
-        (tech_v_x / (tech_v_y + 1e-9)) *
-        (tech_p_x / (tech_p_y + 1e-9)) *
-        (tech_m_x / (tech_m_y + 1e-9))
-    ) ** 0.25
-    return phi * rho
+
+def kill_per_shot_prob(e, a, eff):
+    return 1 - e**(-a * eff)
 
 
-def victory_probability(r_x: float, r_y: float, beta: float, m: float = 1.0) -> float:
-    """
-    P(x > y) = (\beta * r_x)^m / ((\beta * r_x)^m + (\beta * r_y)^m)
-    Возвращает вероятность победы стороны X над Y.
-    """
-    num = (beta * r_x) ** m
-    den = (beta * r_y) ** m
-    return num / (num + den + 1e-9)
+def eff_shot_quantity():
+    pass
+
+
+def compute_damage_ability():
+    pass
+
+
+def compute_forces_change():
+    pass
+
+
+def captured_prob():
+    pass
+
+
+def wounded_prob():
+    pass
+
+
+def killed_prob():
+    pass
+
+
+def compute_env_influence():
+    pass
+
 
 # ============================================================================
-# БЛОК 2: Динамика потерь (Ланчестер/Осипов)
-# ============================================================================
-
-def lanchester_step(x: float, y: float, a_x: float, a_y: float, dt: float = 1.0) -> Tuple[float, float]:
-    """
-    Дискретный квадратичный закон: x_{n+1} = x_n - a_y * dt * y_n
-    """
-    dx = -a_y * dt * y
-    dy = -a_x * dt * x
-    return max(0.0, x + dx), max(0.0, y + dy)
-
-
-def generalized_lanchester_step(
-    x: float, y: float, a_x: float, a_y: float, 
-    p: float, q: float, dt: float = 1.0
-) -> Tuple[float, float]:
-    """
-    Обобщённая модель: dx/dt = -a_y * y^p * x^q
-    p=1, q=1 -> квадратичная модель (развитый огнестрел).
-    p=1, q=0 -> линейная модель (рудиментарный огнестрел и рукопашный бой).
-    Если в victory_probability m = 3, график будет параболлическим
-    (сверхмощное оружие - научная фантастика или магия)
-    """
-    dx = -a_y * (y ** p) * (x ** q) * dt
-    dy = -a_x * (x ** p) * (y ** q) * dt
-    return max(0.0, x + dx), max(0.0, y + dy)
-
-# ============================================================================
-# БЛОК 3: Вероятности поражения и полная вероятность (Колмогоров)
-# Источник: "Базовые функции в моделях.md" -> Критерий эффективности стрельбы
-# ============================================================================
-
-def kolmogorov_hit_prob(alpha: float, hits: int) -> float:
-    """
-    P(A|x) = 1 - e^{-\alpha x}
-    """
-    return 1.0 - math.exp(-alpha * hits)
-
-
-def bernoulli_prob(n: int, m: int, p: float) -> float:
-    """Вероятность ровно m попаданий из n выстрелов."""
-    if not (0 <= m <= n) or not (0.0 <= p <= 1.0):
-        return 0.0
-    return math.comb(n, m) * (p ** m) * ((1 - p) ** (n - m))
-
-
-def total_probability(p_hit: float, n_shots: int, g_func: Callable[[int], float]) -> float:
-    """
-    W = \sum P_{m,n} * G(m)
-    g_func: лямбда/функция, возвращающая вероятность уничтожения цели при m попаданиях.
-    """
-    W = 0.0
-    for m in range(n_shots + 1):
-        W += bernoulli_prob(n_shots, m, p_hit) * g_func(m)
-    return W
-
-# ============================================================================
-# БЛОК 4: Специфические модели и пороговые функции
+# Специфические модели и пороговые функции
 # ============================================================================
 
 def markov_step(prev_probs: List[float], trans_matrix: List[List[float]]) -> List[float]:
@@ -138,7 +83,7 @@ def gaussian_dispersion_prob(x: float, y: float, ax: float, ay: float, sx: float
     return coeff * math.exp(exp_val)
 
 # ============================================================================
-# БЛОК 5: Стратегическая безопасность и суверенность
+# Стратегическая безопасность и суверенность
 # ============================================================================
 
 def base_sovereignty(z: float, z_max: float, s: float, s_max: float, omega_z: float, omega_s: float) -> float:
